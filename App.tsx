@@ -11,7 +11,9 @@ import {
   Sun, 
   Moon,
   ArrowLeft,
-  Loader2
+  Loader2,
+  Hash,
+  ArrowRight
 } from 'lucide-react';
 
 import { DropZone } from './components/DropZone';
@@ -29,6 +31,7 @@ const App: React.FC = () => {
   
   const [selectedPages, setSelectedPages] = useState<Set<number>>(new Set());
   const [settings, setSettings] = useState<ConversionSettings>(DEFAULT_SETTINGS);
+  const [rangeInputValue, setRangeInputValue] = useState("");
   
   // Progress tracking for Final Export
   const [exportProgress, setExportProgress] = useState(0);
@@ -52,12 +55,10 @@ const App: React.FC = () => {
         originalFile: file
       });
       
-      // Default: Select all pages initially? Or none? 
-      // Professional tools usually default to "All" or let user decide. 
-      // Let's start with NONE to encourage selection, OR ALL if < 10 pages.
-      // Let's default to ALL for convenience.
+      // Default: Select all pages initially for convenience.
       const allPages = new Set(Array.from({ length: doc.numPages }, (_, i) => i + 1));
       setSelectedPages(allPages);
+      setRangeInputValue("");
       
       setAppState(AppState.PREVIEW);
     } catch (error) {
@@ -80,10 +81,55 @@ const App: React.FC = () => {
     if (!pdfDoc) return;
     const all = new Set(Array.from({ length: pdfDoc.numPages }, (_, i) => i + 1));
     setSelectedPages(all);
+    setRangeInputValue("");
   };
 
   const handleSelectNone = () => {
     setSelectedPages(new Set());
+    setRangeInputValue("");
+  };
+
+  const applyRangeSelection = () => {
+    if (!pdfDoc) return;
+    const input = rangeInputValue.trim();
+    if (!input) return;
+
+    const newSelection = new Set<number>();
+    const parts = input.split(',');
+    
+    parts.forEach(part => {
+      const p = part.trim();
+      if (p.includes('-')) {
+         const [startStr, endStr] = p.split('-').map(s => s.trim());
+         const start = parseInt(startStr, 10);
+         const end = parseInt(endStr, 10);
+         
+         if (!isNaN(start) && !isNaN(end)) {
+            const s = Math.min(start, end);
+            const e = Math.max(start, end);
+            for(let i = s; i <= e; i++) {
+               if (i >= 1 && i <= pdfDoc.numPages) newSelection.add(i);
+            }
+         }
+      } else {
+         const pageNum = parseInt(p, 10);
+         if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= pdfDoc.numPages) {
+            newSelection.add(pageNum);
+         }
+      }
+    });
+
+    if (newSelection.size > 0) {
+      setSelectedPages(newSelection);
+    } else {
+      // Optional: Visual feedback for invalid range could go here
+    }
+  };
+
+  const handleRangeKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      applyRangeSelection();
+    }
   };
 
   const startExport = async () => {
@@ -140,6 +186,7 @@ const App: React.FC = () => {
     setPdfDoc(null);
     setSelectedPages(new Set());
     setExportProgress(0);
+    setRangeInputValue("");
   };
 
   // --- Renders ---
@@ -252,20 +299,48 @@ const App: React.FC = () => {
             // PREVIEW MODE
             <>
               {/* Toolbar */}
-              <div className="h-12 border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-4 bg-white/50 dark:bg-graphite/30 backdrop-blur-sm shrink-0">
-                 <div className="flex items-center gap-2">
+              <div className="h-14 border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-6 bg-white/50 dark:bg-graphite/30 backdrop-blur-sm shrink-0 gap-4">
+                 <div className="flex items-center gap-3">
                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Selection:</span>
-                   <span className="text-xs font-mono bg-accent/10 text-accent px-2 py-0.5 rounded">
+                   <span className="text-xs font-mono bg-accent/10 text-accent px-2 py-0.5 rounded font-medium">
                      {selectedPages.size} / {pdfInfo?.totalPages}
                    </span>
                  </div>
-                 <div className="flex items-center gap-2">
-                    <button onClick={handleSelectAll} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 rounded transition-colors">
-                      <CheckSquare size={14} /> Select All
-                    </button>
-                    <button onClick={handleSelectNone} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 rounded transition-colors">
-                      <Square size={14} /> None
-                    </button>
+                 
+                 <div className="flex items-center gap-4 flex-1 justify-end">
+                    {/* Range Input Group */}
+                    <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/5 rounded-md p-1 border border-transparent focus-within:border-accent/50 focus-within:ring-2 focus-within:ring-accent/10 transition-all">
+                      <div className="px-2 text-gray-400">
+                        <Hash size={14} />
+                      </div>
+                      <input 
+                        type="text" 
+                        placeholder="Range (e.g. 1-3, 5)" 
+                        className="bg-transparent border-none text-xs w-32 focus:ring-0 text-gray-700 dark:text-gray-200 placeholder-gray-400"
+                        value={rangeInputValue}
+                        onChange={(e) => setRangeInputValue(e.target.value)}
+                        onKeyDown={handleRangeKeyDown}
+                      />
+                      <button 
+                        onClick={applyRangeSelection}
+                        disabled={!rangeInputValue.trim()}
+                        className="p-1.5 bg-white dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 text-gray-600 dark:text-gray-300 rounded shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        title="Apply Range"
+                      >
+                        <ArrowRight size={12} />
+                      </button>
+                    </div>
+
+                    <div className="h-4 w-px bg-gray-200 dark:bg-white/10 mx-2 hidden sm:block"></div>
+
+                    <div className="flex items-center gap-2">
+                      <button onClick={handleSelectAll} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 rounded transition-colors">
+                        <CheckSquare size={14} /> All
+                      </button>
+                      <button onClick={handleSelectNone} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 rounded transition-colors">
+                        <Square size={14} /> None
+                      </button>
+                    </div>
                  </div>
               </div>
 

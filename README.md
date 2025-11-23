@@ -14,7 +14,7 @@
 *   **Cyber-Industrial Aesthetics:** A unique, immersive interface offering both **Dark** and **Light** modes with motion effects and "glassmorphism" UI.
 *   **Client-Side Processing:** All PDF rendering happens locally in your browser using `pdf.js`. No files are uploaded to a server for conversion.
 *   **Granular Control:**
-    *   Select specific pages to convert.
+    *   **Range Selection:** Input complex page ranges (e.g., "1-3, 5, 8-10") to quickly select pages.
     *   Adjust output quality (compression).
     *   Set resolution density (1x up to 3x).
     *   Choose output format: JPEG, PNG, or WebP.
