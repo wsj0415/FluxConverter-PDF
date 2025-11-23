@@ -11,7 +11,7 @@
 
 ## ✨ Features
 
-*   **Cyber-Industrial Aesthetics:** A unique, immersive dark-mode interface with motion effects and "glassmorphism" UI.
+*   **Cyber-Industrial Aesthetics:** A unique, immersive interface offering both **Dark** and **Light** modes with motion effects and "glassmorphism" UI.
 *   **Client-Side Processing:** All PDF rendering happens locally in your browser using `pdf.js`. No files are uploaded to a server for conversion.
 *   **Granular Control:**
     *   Select specific pages to convert.

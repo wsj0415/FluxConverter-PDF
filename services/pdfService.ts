@@ -34,7 +34,7 @@ export const renderPageToImage = async (
       viewport: viewport,
     };
 
-    await page.render(renderContext).promise;
+    await page.render(renderContext as any).promise;
 
     return new Promise((resolve, reject) => {
       canvas.toBlob(

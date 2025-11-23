@@ -1,4 +1,5 @@
 import React from 'react';
+import { ImageFormat } from './types';
 
 // Using direct SVG paths for a robust icon set without external dependencies if needed, 
 // but using Lucide React is cleaner in the components.
@@ -8,7 +9,7 @@ export const MAX_FILE_SIZE_MB = 50;
 export const SUPPORTED_MIME_TYPES = ['application/pdf'];
 
 export const DEFAULT_SETTINGS = {
-  format: 'image/jpeg',
+  format: ImageFormat.JPEG,
   quality: 0.8,
   scale: 1.5,
 };

@@ -34,6 +34,7 @@
             },
             backgroundImage: {
               'grid-pattern': "linear-gradient(to right, #262626 1px, transparent 1px), linear-gradient(to bottom, #262626 1px, transparent 1px)",
+              'grid-pattern-light': "linear-gradient(to right, #e5e7eb 1px, transparent 1px), linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)",
             },
             animation: {
               'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -50,31 +51,55 @@
       }
     </script>
     <style>
-      body {
-        background-color: #050505;
-        color: #e5e5e5;
-        font-family: "Chakra Petch", sans-serif;
+      :root {
+        --bg-primary: #f9fafb;
+        --text-primary: #111827;
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(0, 0, 0, 0.08);
+        --scroll-track: #f3f4f6;
+        --scroll-thumb: #d1d5db;
+        --scroll-thumb-hover: #9ca3af;
       }
+      
+      html.dark {
+        --bg-primary: #050505;
+        --text-primary: #e5e5e5;
+        --glass-bg: rgba(23, 23, 23, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --scroll-track: #0f0f0f;
+        --scroll-thumb: #333;
+        --scroll-thumb-hover: #444;
+      }
+
+      body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: "Chakra Petch", sans-serif;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #0f0f0f; 
+        background: var(--scroll-track); 
       }
       ::-webkit-scrollbar-thumb {
-        background: #333; 
+        background: var(--scroll-thumb); 
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #444; 
+        background: var(--scroll-thumb-hover); 
       }
+
       .glass-panel {
-        background: rgba(23, 23, 23, 0.7);
+        background: var(--glass-bg);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--glass-border);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
       }
     </style>
   <script type="importmap">

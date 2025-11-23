@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Upload, FileType, AlertCircle } from 'lucide-react';
+import { Upload, AlertCircle } from 'lucide-react';
 
 interface DropZoneProps {
   onFileAccepted: (file: File) => void;
@@ -54,7 +54,7 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileAccepted, isLoading })
         relative overflow-hidden group rounded-2xl border-2 border-dashed transition-all duration-300 w-full min-h-[300px] flex flex-col items-center justify-center p-8
         ${isDragOver 
           ? 'border-amber-500 bg-amber-500/5 shadow-[0_0_50px_rgba(245,158,11,0.1)] scale-[1.01]' 
-          : 'border-white/10 bg-charcoal/50 hover:border-white/20 hover:bg-charcoal'}
+          : 'border-gray-300 dark:border-white/10 bg-gray-100/50 dark:bg-charcoal/50 hover:border-gray-400 dark:hover:border-white/20 hover:bg-gray-100 dark:hover:bg-charcoal'}
         ${isLoading ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}
       `}
     >
@@ -67,21 +67,21 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileAccepted, isLoading })
       />
       
       {/* Background Grid Animation */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] pointer-events-none" />
+      <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern opacity-[0.03] pointer-events-none" />
       
       <div className="z-20 flex flex-col items-center space-y-6 text-center pointer-events-none">
         <div className={`
-          p-6 rounded-full bg-graphite border border-white/5 transition-transform duration-500
+          p-6 rounded-full bg-white dark:bg-graphite border border-gray-200 dark:border-white/5 transition-transform duration-500 shadow-lg dark:shadow-none
           ${isDragOver ? 'scale-110 border-amber-500/50' : ''}
         `}>
           <Upload 
             size={40} 
-            className={`${isDragOver ? 'text-amber-500' : 'text-gray-500'} transition-colors duration-300`} 
+            className={`${isDragOver ? 'text-amber-500' : 'text-gray-400 dark:text-gray-500'} transition-colors duration-300`} 
           />
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-xl font-bold text-gray-200">
+          <h3 className="text-xl font-bold text-gray-700 dark:text-gray-200">
             {isDragOver ? "Drop Flux Capacitor Here" : "Upload PDF Document"}
           </h3>
           <p className="text-gray-500 text-sm max-w-xs font-mono">
@@ -90,7 +90,7 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileAccepted, isLoading })
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 px-4 py-2 rounded-lg border border-red-500/20 animate-pulse-fast">
+          <div className="flex items-center gap-2 text-red-500 dark:text-red-400 text-sm bg-red-50 dark:bg-red-500/10 px-4 py-2 rounded-lg border border-red-200 dark:border-red-500/20 animate-pulse-fast">
             <AlertCircle size={16} />
             {error}
           </div>

@@ -18,7 +18,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   };
 
   return (
-    <div className="glass-panel p-6 rounded-xl space-y-6 border-l-4 border-amber-500">
+    <div className="glass-panel p-6 rounded-xl space-y-6 border-l-4 border-amber-500 transition-all duration-300">
       <div className="flex items-center gap-2 text-amber-500 mb-4">
         <Settings size={20} />
         <h3 className="font-bold uppercase tracking-wider text-sm">Output Configuration</h3>
@@ -38,8 +38,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               className={`
                 px-3 py-2 rounded text-sm font-mono transition-all duration-200 border
                 ${settings.format === fmt 
-                  ? 'bg-amber-500/20 border-amber-500 text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.2)]' 
-                  : 'bg-charcoal border-white/10 text-gray-500 hover:border-white/20 hover:text-gray-300'}
+                  ? 'bg-amber-500/20 border-amber-500 text-amber-600 dark:text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.2)]' 
+                  : 'bg-gray-100 dark:bg-charcoal border-gray-200 dark:border-white/10 text-gray-500 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-700 dark:hover:text-gray-300'}
               `}
             >
               {fmt.split('/')[1].toUpperCase()}
@@ -54,7 +54,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <label className="flex items-center gap-2 uppercase">
             <Sliders size={14} /> Quality
           </label>
-          <span className="text-amber-500">{Math.round(settings.quality * 100)}%</span>
+          <span className="text-amber-500 font-bold">{Math.round(settings.quality * 100)}%</span>
         </div>
         <input
           type="range"
@@ -64,7 +64,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           value={settings.quality}
           disabled={disabled}
           onChange={(e) => handleChange('quality', parseFloat(e.target.value))}
-          className="w-full h-2 bg-charcoal rounded-lg appearance-none cursor-pointer accent-amber-500 border border-white/10"
+          className="w-full h-2 bg-gray-200 dark:bg-charcoal rounded-lg appearance-none cursor-pointer accent-amber-500 border border-gray-300 dark:border-white/10"
         />
       </div>
 
@@ -74,7 +74,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <label className="flex items-center gap-2 uppercase">
             <Maximize size={14} /> Density (DPI)
           </label>
-          <span className="text-amber-500">{settings.scale}x</span>
+          <span className="text-amber-500 font-bold">{settings.scale}x</span>
         </div>
         <div className="flex justify-between gap-2">
            {[1, 1.5, 2, 3].map((val) => (
@@ -85,8 +85,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 className={`
                   flex-1 py-1 text-xs font-mono border rounded transition-all
                   ${settings.scale === val
-                    ? 'border-amber-500 text-amber-500 bg-amber-500/10'
-                    : 'border-white/10 text-gray-600 hover:text-gray-400'}
+                    ? 'border-amber-500 text-amber-600 dark:text-amber-500 bg-amber-500/10'
+                    : 'border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-400 bg-transparent'}
                 `}
              >
                {val}x

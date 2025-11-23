@@ -10,9 +10,10 @@ import {
   Cpu, 
   Loader,
   Wand2,
-  KeyRound,
   CheckSquare,
-  Square
+  Square,
+  Sun,
+  Moon
 } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 
@@ -25,8 +26,7 @@ import {
   AppState, 
   PdfDocumentInfo, 
   ProcessedPage, 
-  ConversionSettings, 
-  ImageFormat 
+  ConversionSettings
 } from './types';
 import { DEFAULT_SETTINGS } from './constants';
 
@@ -41,9 +41,22 @@ const App: React.FC = () => {
   const [isAiRenaming, setIsAiRenaming] = useState(false);
   const [smartName, setSmartName] = useState<string>('');
   const [selectedPages, setSelectedPages] = useState<Set<number>>(new Set());
+  const [isDarkMode, setIsDarkMode] = useState(true);
   
   // Abort controller for cancellation
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   const handleFileAccepted = async (file: File) => {
     setAppState(AppState.ANALYZING);
@@ -235,25 +248,37 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian text-gray-200 selection:bg-amber-500/30 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-obsidian text-gray-900 dark:text-gray-200 selection:bg-amber-500/30 flex flex-col transition-colors duration-300">
       {/* Header */}
-      <header className="h-16 border-b border-white/5 bg-charcoal/50 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-50">
+      <header className="h-16 border-b border-gray-200 dark:border-white/5 bg-white/70 dark:bg-charcoal/50 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-50 transition-colors duration-300">
         <div className="flex items-center gap-3">
           <div className="bg-amber-500 p-1.5 rounded-lg shadow-[0_0_15px_rgba(245,158,11,0.4)]">
             <Zap className="text-black fill-current" size={20} />
           </div>
-          <h1 className="text-lg font-bold tracking-wider text-gray-100">
+          <h1 className="text-lg font-bold tracking-wider text-gray-800 dark:text-gray-100">
             FLUX<span className="text-amber-500">CONVERTER</span>
           </h1>
         </div>
-        <div className="flex items-center gap-4 text-xs font-mono text-gray-500">
-          <span className="flex items-center gap-1">
-            <Cpu size={14} /> V1.0.4-BETA
-          </span>
-          <div className="h-4 w-[1px] bg-white/10"></div>
-          <span className={apiKey || process.env.API_KEY ? "text-green-500" : "text-gray-700"}>
-            AI LINKED
-          </span>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 text-xs font-mono text-gray-500 dark:text-gray-500">
+            <span className="flex items-center gap-1">
+              <Cpu size={14} /> V1.0.5
+            </span>
+            <div className="h-4 w-[1px] bg-gray-300 dark:bg-white/10"></div>
+            <span className={apiKey || process.env.API_KEY ? "text-green-600 dark:text-green-500" : "text-gray-400 dark:text-gray-700"}>
+              AI LINKED
+            </span>
+          </div>
+          
+          <div className="h-6 w-[1px] bg-gray-300 dark:bg-white/10"></div>
+
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
         </div>
       </header>
 
@@ -267,11 +292,11 @@ const App: React.FC = () => {
           {appState !== AppState.IDLE && pdfInfo && (
             <div className="glass-panel p-4 rounded-xl flex items-center justify-between animate-fade-in">
               <div className="flex items-center gap-3 overflow-hidden">
-                <div className="bg-white/5 p-2 rounded-lg">
+                <div className="bg-gray-100 dark:bg-white/5 p-2 rounded-lg">
                   <FileText className="text-amber-500" size={24} />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold truncate text-sm text-gray-200">{pdfInfo.name}</h3>
+                  <h3 className="font-bold truncate text-sm text-gray-800 dark:text-gray-200">{pdfInfo.name}</h3>
                   <p className="text-xs text-gray-500 font-mono">
                     {pdfInfo.totalPages} PAGES • {(pdfInfo.size / 1024 / 1024).toFixed(2)} MB
                   </p>
@@ -279,15 +304,15 @@ const App: React.FC = () => {
               </div>
               <button 
                 onClick={reset}
-                className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors text-gray-500"
+                className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors text-gray-400"
               >
                 <Trash2 size={18} />
               </button>
             </div>
           )}
 
-          {/* Upload Area (Only visible when IDLE) */}
-          {appState === AppState.IDLE && (
+          {/* Upload Area (Only visible when IDLE or ANALYZING) */}
+          {(appState === AppState.IDLE || appState === AppState.ANALYZING) && (
             <DropZone 
               onFileAccepted={handleFileAccepted} 
               isLoading={appState === AppState.ANALYZING} 
@@ -320,7 +345,7 @@ const App: React.FC = () => {
                 <span>PROCESSING...</span>
                 <span>{progress}%</span>
               </div>
-              <div className="h-2 bg-charcoal rounded-full overflow-hidden border border-white/5">
+              <div className="h-2 bg-gray-200 dark:bg-charcoal rounded-full overflow-hidden border border-gray-300 dark:border-white/5">
                 <div 
                   className="h-full bg-amber-500 shadow-[0_0_10px_#f59e0b] transition-all duration-300 ease-out"
                   style={{ width: `${progress}%` }}
@@ -339,12 +364,12 @@ const App: React.FC = () => {
                       type="text" 
                       value={smartName || pdfInfo?.name || ''}
                       onChange={(e) => setSmartName(e.target.value)}
-                      className="bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-300 w-full focus:border-amber-500 focus:outline-none"
+                      className="bg-white dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-300 w-full focus:border-amber-500 focus:outline-none transition-colors"
                     />
                     <button 
                       onClick={handleAiRename}
                       disabled={isAiRenaming || (!process.env.API_KEY && !apiKey)}
-                      className="bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 p-2 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
+                      className="bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-500 dark:text-indigo-400 p-2 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
                       title="AI Smart Rename (Requires API Key)"
                     >
                       {isAiRenaming ? <Loader className="animate-spin" size={18} /> : <Wand2 size={18} />}
@@ -356,13 +381,13 @@ const App: React.FC = () => {
                 <button
                   onClick={handleDownload}
                   disabled={selectedPages.size === 0}
-                  className="w-full py-4 bg-white text-black hover:bg-gray-200 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed font-bold text-lg rounded-xl transition-all flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed font-bold text-lg rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
                 >
                   <Download size={20} /> 
                   {selectedPages.size > 0 ? `DOWNLOAD ${selectedPages.size} PAGES` : 'SELECT PAGES TO DOWNLOAD'}
                 </button>
                 {selectedPages.size < pages.length && (
-                   <p className="text-center text-xs font-mono text-amber-500/80">
+                   <p className="text-center text-xs font-mono text-amber-600 dark:text-amber-500/80">
                       {pages.length - selectedPages.size} pages excluded
                    </p>
                 )}
@@ -370,7 +395,7 @@ const App: React.FC = () => {
               
               <button
                 onClick={reset}
-                className="w-full py-3 bg-transparent border border-white/10 hover:bg-white/5 text-gray-400 font-mono text-sm rounded-xl transition-all"
+                className="w-full py-3 bg-transparent border border-gray-300 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 font-mono text-sm rounded-xl transition-all"
               >
                 RESET SYSTEM
               </button>
@@ -379,29 +404,29 @@ const App: React.FC = () => {
         </div>
 
         {/* Right Column: Preview Grid */}
-        <div className="lg:col-span-8 bg-black/20 rounded-2xl border border-white/5 p-4 flex flex-col h-[600px] lg:h-auto min-h-[500px]">
+        <div className="lg:col-span-8 bg-gray-200/50 dark:bg-black/20 rounded-2xl border border-gray-200 dark:border-white/5 p-4 flex flex-col h-[600px] lg:h-auto min-h-[500px] transition-colors duration-300">
           <div className="flex items-center justify-between mb-4 px-2">
              <div className="flex items-center gap-4">
-                <h2 className="text-sm font-mono text-gray-400 flex items-center gap-2">
+                <h2 className="text-sm font-mono text-gray-500 dark:text-gray-400 flex items-center gap-2">
                   <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
                   VISUAL OUTPUT MATRIX
                 </h2>
                 {appState === AppState.COMPLETED && (
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono text-gray-600 bg-white/5 px-2 py-1 rounded">
-                      SELECTED: <span className="text-amber-500">{selectedPages.size}</span> / {pages.length}
+                    <span className="text-xs font-mono text-gray-600 dark:text-gray-500 bg-gray-300/50 dark:bg-white/5 px-2 py-1 rounded transition-colors">
+                      SELECTED: <span className="text-amber-600 dark:text-amber-500">{selectedPages.size}</span> / {pages.length}
                     </span>
-                    <div className="h-4 w-[1px] bg-white/10"></div>
+                    <div className="h-4 w-[1px] bg-gray-300 dark:bg-white/10"></div>
                     <button 
                       onClick={handleSelectAll}
-                      className="flex items-center gap-1 text-[10px] font-mono text-gray-500 hover:text-amber-500 transition-colors uppercase"
+                      className="flex items-center gap-1 text-[10px] font-mono text-gray-500 hover:text-amber-600 dark:hover:text-amber-500 transition-colors uppercase"
                       title="Select All"
                     >
                       <CheckSquare size={12} /> All
                     </button>
                     <button 
                       onClick={handleDeselectAll}
-                      className="flex items-center gap-1 text-[10px] font-mono text-gray-500 hover:text-gray-300 transition-colors uppercase"
+                      className="flex items-center gap-1 text-[10px] font-mono text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 transition-colors uppercase"
                       title="Deselect All"
                     >
                       <Square size={12} /> None
@@ -409,16 +434,16 @@ const App: React.FC = () => {
                   </div>
                 )}
              </div>
-             <div className="text-xs font-mono text-gray-600 hidden md:block">
+             <div className="text-xs font-mono text-gray-400 dark:text-gray-600 hidden md:block">
                RENDER_ENGINE: PDF.JS / CANVAS
              </div>
           </div>
           
-          <div className="flex-1 overflow-hidden relative rounded-xl bg-graphite/30 border border-white/5 p-4">
+          <div className="flex-1 overflow-hidden relative rounded-xl bg-gray-100 dark:bg-graphite/30 border border-gray-200 dark:border-white/5 p-4 transition-colors duration-300">
              {appState === AppState.IDLE ? (
-                <div className="absolute inset-0 flex items-center justify-center flex-col gap-4 text-gray-600">
-                   <div className="w-16 h-16 border border-gray-700 rounded-lg flex items-center justify-center opacity-20">
-                      <div className="w-12 h-12 border border-gray-700 rounded bg-gray-800"></div>
+                <div className="absolute inset-0 flex items-center justify-center flex-col gap-4 text-gray-400 dark:text-gray-600 transition-colors">
+                   <div className="w-16 h-16 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center opacity-20">
+                      <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 rounded bg-gray-200 dark:bg-gray-800"></div>
                    </div>
                    <p className="font-mono text-xs tracking-widest opacity-50">NO SIGNAL INPUT</p>
                 </div>
