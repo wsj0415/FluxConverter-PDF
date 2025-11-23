@@ -10,14 +10,17 @@ export interface ConversionSettings {
   scale: number; // 1 to 3
 }
 
-export interface ProcessedPage {
+export interface ThumbnailData {
   pageNumber: number;
-  blob: Blob;
+  url: string | null;
   width: number;
   height: number;
-  previewUrl: string;
-  status: 'pending' | 'processing' | 'completed' | 'error';
-  errorMessage?: string;
+  status: 'idle' | 'loading' | 'success' | 'error';
+}
+
+export interface ProcessedExport {
+  pageNumber: number;
+  blob: Blob;
 }
 
 export interface PdfDocumentInfo {
@@ -29,8 +32,8 @@ export interface PdfDocumentInfo {
 
 export enum AppState {
   IDLE = 'IDLE',
-  ANALYZING = 'ANALYZING',
-  READY = 'READY',
-  CONVERTING = 'CONVERTING',
-  COMPLETED = 'COMPLETED'
+  LOADING_PDF = 'LOADING_PDF',
+  PREVIEW = 'PREVIEW',     // User selects pages here
+  EXPORTING = 'EXPORTING', // Batch conversion happening
+  COMPLETED = 'COMPLETED'  // Download ready
 }

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Upload, AlertCircle } from 'lucide-react';
+import { UploadCloud, FileType } from 'lucide-react';
 
 interface DropZoneProps {
   onFileAccepted: (file: File) => void;
@@ -22,7 +22,8 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileAccepted, isLoading })
 
   const processFile = (file: File) => {
     if (file.type !== 'application/pdf') {
-      setError('Invalid file type. Please upload a PDF.');
+      setError('Invalid format. Please upload a standard PDF document.');
+      setTimeout(() => setError(null), 3000);
       return;
     }
     setError(null);
@@ -41,7 +42,6 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileAccepted, isLoading })
     if (e.target.files && e.target.files.length > 0) {
       processFile(e.target.files[0]);
     }
-    // Reset value to allow selecting the same file again if needed
     e.target.value = '';
   };
 
@@ -51,11 +51,11 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileAccepted, isLoading })
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={`
-        relative overflow-hidden group rounded-2xl border-2 border-dashed transition-all duration-300 w-full min-h-[300px] flex flex-col items-center justify-center p-8
+        relative group rounded-lg border border-dashed transition-all duration-200 w-full min-h-[320px] flex flex-col items-center justify-center p-8
         ${isDragOver 
-          ? 'border-amber-500 bg-amber-500/5 shadow-[0_0_50px_rgba(245,158,11,0.1)] scale-[1.01]' 
-          : 'border-gray-300 dark:border-white/10 bg-gray-100/50 dark:bg-charcoal/50 hover:border-gray-400 dark:hover:border-white/20 hover:bg-gray-100 dark:hover:bg-charcoal'}
-        ${isLoading ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}
+          ? 'border-accent bg-accent-subtle' 
+          : 'border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-graphite hover:border-gray-400 dark:hover:border-white/20'}
+        ${isLoading ? 'opacity-50 cursor-wait' : 'cursor-pointer'}
       `}
     >
       <input
@@ -66,32 +66,27 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFileAccepted, isLoading })
         disabled={isLoading}
       />
       
-      {/* Background Grid Animation */}
-      <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern opacity-[0.03] pointer-events-none" />
-      
-      <div className="z-20 flex flex-col items-center space-y-6 text-center pointer-events-none">
+      <div className="z-10 flex flex-col items-center space-y-6 text-center pointer-events-none">
         <div className={`
-          p-6 rounded-full bg-white dark:bg-graphite border border-gray-200 dark:border-white/5 transition-transform duration-500 shadow-lg dark:shadow-none
-          ${isDragOver ? 'scale-110 border-amber-500/50' : ''}
+          p-5 rounded-full transition-all duration-300
+          ${isDragOver ? 'bg-accent text-white shadow-lg' : 'bg-white dark:bg-white/5 text-gray-400 dark:text-gray-500 shadow-sm border border-gray-100 dark:border-white/5'}
         `}>
-          <Upload 
-            size={40} 
-            className={`${isDragOver ? 'text-amber-500' : 'text-gray-400 dark:text-gray-500'} transition-colors duration-300`} 
-          />
+          <UploadCloud size={32} />
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-xl font-bold text-gray-700 dark:text-gray-200">
-            {isDragOver ? "Drop Flux Capacitor Here" : "Upload PDF Document"}
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+            {isDragOver ? "Drop file to process" : "Select Document"}
           </h3>
-          <p className="text-gray-500 text-sm max-w-xs font-mono">
-            Drag & drop or click to browse. <br/>Supports PDF files up to 50MB.
+          <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
+            Drag PDF here or click to browse.<br/>
+            <span className="text-xs text-gray-400">Supported up to 50MB. Processed locally.</span>
           </p>
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 text-red-500 dark:text-red-400 text-sm bg-red-50 dark:bg-red-500/10 px-4 py-2 rounded-lg border border-red-200 dark:border-red-500/20 animate-pulse-fast">
-            <AlertCircle size={16} />
+          <div className="text-red-600 text-xs font-medium bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded flex items-center gap-2">
+            <FileType size={12} />
             {error}
           </div>
         )}
